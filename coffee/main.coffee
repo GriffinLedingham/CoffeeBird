@@ -7,6 +7,32 @@ pipeWidth = 52
 pipes = []
 canReplay = false
 updateInterval = undefined
+socket = io.connect('http://localhost')
+my_id = undefined
+
+players = []
+
+socket.on 'your_id', (id) =>
+  my_id = id
+
+socket.on 'update', (play_arr) =>
+  players = play_arr
+  for i in [0..players.length-1]
+
+    if play_arr[i]?
+      #
+    else
+      $('#player'+i).remove()
+      continue
+    if $('#player'+i).length != 0
+      if play_arr[i]?
+        $('#player'+i).css
+          top: play_arr[i].pos+'px'
+    else
+      $('#players').append('<div id="player'+i+'" class="bird animated"></div>')
+      if play_arr[i]?
+        $('#player'+i).css
+          top: play_arr[i].pos+'px'
 
 start = =>
 	state = 1
@@ -14,6 +40,7 @@ start = =>
 	$('#title').transition({opacity:0},200,'ease')
 	setBigScore(false)
 	updateInterval = setInterval(update, 1000/60)
+  
 
 update = =>
 	tick += 1
@@ -37,8 +64,9 @@ update = =>
 		playerDead()
 
 	ceiling = $("#ceiling")
-	pos = 5  if top < 46
+	pos = 0  if top < 0
 	return unless pipes[0]?
+  socket.emit('myevent', pos)
 	pipe = pipes[0]
 	topPipe = pipe.children(".pipe_upper")
 	pipeTop = topPipe.offset().top + topPipe.height()
